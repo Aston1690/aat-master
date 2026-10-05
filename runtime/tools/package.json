@@ -1,0 +1,10 @@
+{
+  "name": "aa-team-design-skills-tools",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Headless Chromium helper for tools/design.py (PNG export, PDF with live text, profile previews).",
+  "type": "module",
+  "dependencies": {
+    "playwright-core": "1.63.0"
+  }
+}

@@ -1,0 +1,5 @@
+# Python packages for the helper tools. Pinned so every PC behaves the same.
+pillow==11.3.0
+pypdf==6.14.2
+gdown==5.2.0
+pypdfium2==4.30.0

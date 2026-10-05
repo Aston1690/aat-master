@@ -1,0 +1,3 @@
+Lato
+Official Google Fonts files, unchanged, from https://raw.githubusercontent.com/google/fonts/main/ofl/lato/
+Downloaded 2026-10-01T00:09:21+05:00. Licence file in this folder.

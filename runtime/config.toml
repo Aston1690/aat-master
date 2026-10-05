@@ -1,0 +1,73 @@
+# Seven-deliverable runtime for local team testing.
+[workflow]
+parallel_builders = 2
+max_repair_rounds = 3
+[review]
+images_per_batch = 12
+[images]
+engine = "codex_image_gen"
+operator = "orchestrator"
+# Images are prepared in the current Codex thread before Sol builds; no paid API fallback.
+
+[roles.orchestrator]
+model = "gpt-6-astra"
+effort = "high"
+sandbox = "workspace-write"
+profile = "aat-master-astra"
+timeout_minutes = 60
+
+[roles.builder]
+model = "gpt-6-sol"
+effort = "high"
+sandbox = "workspace-write"
+profile = "aat-master-sol"
+timeout_minutes = 60
+
+[roles.reviewer]
+model = "gpt-6-astra"
+effort = "medium"
+sandbox = "read-only"
+profile = "aat-master-reviewer"
+timeout_minutes = 30
+
+[deliverables.linkedin-banner]
+skill = ".agents/skills/linkedin-banner/SKILL.md"
+review = ".agents/skills/linkedin-banner/REVIEW.md"
+requirements = "Native banner, editable source, exact chosen personal/business prototype; desktop/mobile/phone views. Route by brief destination; preserve every brief option."
+required_checks = ["file_specs", "destination_preview", "exact_copy", "visual_inspection"]
+
+[deliverables.linkedin-static]
+skill = ".agents/skills/linkedin-static/SKILL.md"
+review = ".agents/skills/linkedin-static/REVIEW.md"
+requirements = "Every requested post has prominent relevant imagery, editable source, native export and feed/phone inspection. Three-pass review and captions mapping."
+required_checks = ["file_specs", "imagery_every_post", "exact_copy", "captions", "three_pass_review"]
+
+[deliverables.linkedin-carousel]
+skill = ".agents/skills/linkedin-carousel/SKILL.md"
+review = ".agents/skills/linkedin-carousel/REVIEW.md"
+requirements = "Every slide has imagery. N ordered PNGs and exactly one N-page PDF, editable source, creative bible and accompanying caption. No fixed seven/eight count."
+required_checks = ["slide_pdf_count_order", "imagery_every_slide", "exact_copy", "captions", "creative_bible", "visual_inspection"]
+
+[deliverables.bip]
+skill = ".agents/skills/bip/SKILL.md"
+review = ".agents/skills/bip/REVIEW.md"
+requirements = "Approved copy in editable document source and one inspected multi-page PDF. Every page reviewed. Honour document/slide brief and print specs."
+required_checks = ["page_count_order", "approved_copy", "editable_source", "pdf_every_page", "print_status"]
+
+[deliverables.email-newsletter]
+skill = ".agents/skills/email-newsletter/SKILL.md"
+review = ".agents/skills/email-newsletter/REVIEW.md"
+requirements = "Complete desktop and phone previews. Concept, production HTML with plain text, or both as briefed. Actual links/tags/footer; no invented news, external test send or fake inbox-test claim."
+required_checks = ["full_length_preview", "exact_copy", "links_footer", "delivery_track", "email_compatibility_status"]
+
+[deliverables.landing-page-director]
+skill = ".agents/skills/landing-page-director/SKILL.md"
+review = ".agents/skills/landing-page-director/REVIEW.md"
+requirements = "One complete landing page per option. Image-first hero then section references, working source, exact copy, five-width evidence and local interaction/motion checks. Human-only release."
+required_checks = ["build_tests", "all_five_widths", "exact_copy", "references", "interactions", "motion", "accessibility", "local_form_status"]
+
+[deliverables.website]
+skill = ".agents/skills/website/SKILL.md"
+review = ".agents/skills/website/REVIEW.md"
+requirements = "Every in-scope route per option, shared system and existing stack. Image-first references, all routes at five widths, working local controls, exact copy. Human-only release."
+required_checks = ["build_tests", "route_inventory", "all_five_widths", "exact_copy", "references", "interactions", "motion", "accessibility", "local_form_status"]

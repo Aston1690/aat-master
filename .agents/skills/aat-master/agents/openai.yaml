@@ -1,0 +1,6 @@
+interface:
+  display_name: "AAT Master"
+  short_description: "Run seven creative workflows with Astra and Sol"
+  default_prompt: "Use $aat-master to route my brief and run one creative task through the configured Astra/Sol workflow."
+policy:
+  allow_implicit_invocation: true

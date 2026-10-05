@@ -1,0 +1,3 @@
+Figtree
+Official Google Fonts files, unchanged, from https://raw.githubusercontent.com/google/fonts/main/ofl/figtree/
+Downloaded 2026-10-01T00:09:45+05:00. Licence file in this folder.

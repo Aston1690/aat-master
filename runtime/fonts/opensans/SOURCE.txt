@@ -1,0 +1,3 @@
+Open Sans
+Official Google Fonts files, unchanged, from https://raw.githubusercontent.com/google/fonts/main/ofl/opensans/
+Downloaded 2026-10-01T00:09:28+05:00. Licence file in this folder.
