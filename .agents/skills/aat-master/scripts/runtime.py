@@ -16,10 +16,11 @@ def resolve_runtime():
         if (bundled / 'team.py').is_file():
             root = bundled
             return validate_runtime(root)
-        registry = Path.home() / '.config' / 'aat-master' / 'runtime.json'
+        installed_binding = Path(__file__).resolve().parents[1] / 'runtime-location.json'
+        registry = installed_binding if installed_binding.is_file() else Path.home() / '.config' / 'aat-master' / 'runtime.json'
         if not registry.is_file():
             raise ValueError('AAT runtime is not connected: missing machine-local runtime.json')
-        data = json.loads(registry.read_text())
+        data = json.loads(registry.read_text(encoding='utf-8'))
         value = data.get('runtime_root')
         if not isinstance(value, str) or not value.strip():
             raise ValueError('AAT runtime registry needs a non-empty runtime_root')
@@ -32,7 +33,7 @@ def validate_runtime(root):
         raise ValueError('AAT runtime_root must be absolute')
     root = root.resolve()
     required = ['team.py', 'config.toml', 'installation.json', 'AGENTS.md',
-                'RUN-A-JOB.md', '.venv/bin/python']
+                'RUN-A-JOB.md', '.venv/Scripts/python.exe' if os.name == 'nt' else '.venv/bin/python']
     missing = [name for name in required if not (root / name).is_file()]
     if missing:
         raise ValueError('AAT runtime is incomplete: ' + ', '.join(missing))
@@ -55,7 +56,8 @@ def main():
                               'procedure': str(root / 'RUN-A-JOB.md'),
                               'skills_root': str(root / '.agents' / 'skills')}, indent=2))
             return 0
-        command = [str(root / '.venv' / 'bin' / 'python'), str(root / 'team.py')]
+        python = root / '.venv' / ('Scripts/python.exe' if os.name == 'nt' else 'bin/python')
+        command = [str(python), str(root / 'team.py')]
         return subprocess.run(command + sys.argv[1:]).returncode
     except (OSError, ValueError, TypeError, AttributeError) as exc:
         print('STOP: ' + str(exc), file=sys.stderr)

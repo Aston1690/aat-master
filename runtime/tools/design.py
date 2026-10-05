@@ -111,9 +111,9 @@ def save_case(c, data):
 def node():
     exe = shutil.which('node')
     if not exe:
-        raise Stop('Node.js is not installed or not on PATH. Run install\\install.ps1.')
+        raise Stop('Node.js is not installed or not on PATH. Run the repository installer after installing Node.js.')
     if not (ROOT / 'tools' / 'node_modules' / 'playwright-core').is_dir():
-        raise Stop('the browser helper is not installed. Run install\\install.ps1 (it runs npm ci in tools).')
+        raise Stop('the browser helper is not installed. Run the repository install.py (it runs npm ci in runtime/tools).')
     return exe
 
 

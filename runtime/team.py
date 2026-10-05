@@ -1,16 +1,20 @@
 #!/usr/bin/env python3
 """Local seven-deliverable Codex runtime. No publication actions."""
 from __future__ import annotations
-import argparse,concurrent.futures,contextlib,fcntl,hashlib,json,os,re,shutil,subprocess,sys,time,tomllib
+import argparse,concurrent.futures,contextlib,hashlib,json,os,re,shutil,subprocess,sys,time,tomllib
 from pathlib import Path
+if os.name == 'nt':
+ import msvcrt
+else:
+ import fcntl
 ROOT=Path(__file__).resolve().parent
 SKILLS=ROOT/'.agents/skills'
 CONFIG=ROOT/'config.toml'
 class Stop(Exception):pass
-def read(p):return json.loads(Path(p).read_text())
+def read(p):return json.loads(Path(p).read_text(encoding='utf-8'))
 def write(p,v):
- p=Path(p);p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps(v,indent=2,ensure_ascii=False)+'\n')
-def cfg():return tomllib.loads(CONFIG.read_text())
+ p=Path(p);p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps(v,indent=2,ensure_ascii=False)+'\n', encoding='utf-8')
+def cfg():return tomllib.loads(CONFIG.read_text(encoding='utf-8'))
 def sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 def local(root,name):
  p=(root/name).resolve()
@@ -22,20 +26,28 @@ def pins():
   p=local(repo,name)
   if not p.is_file() or sha(p)!=h:raise Stop('Runtime or skill changed since packaging: '+name)
  state=ROOT/'installation.json'
- if not state.is_file():raise Stop('Run python3.11 install.py before using the runtime')
+ if not state.is_file():raise Stop('Run the repository installer before using the runtime')
  profiles=read(state).get('profiles',{})
  if len(profiles)!=3:raise Stop('Installation must pin all three model profiles')
- for name,h in profiles.items():
+ for name,h in {**profiles,**read(state).get('installed_skill_files',{})}.items():
   p=Path(name)
   if not p.is_file() or sha(p)!=h:raise Stop('Installed model profile changed: '+p.name)
 @contextlib.contextmanager
 def lock(path):
  path.parent.mkdir(parents=True,exist_ok=True)
- with path.open('a') as f:
-  try:fcntl.flock(f,fcntl.LOCK_EX|fcntl.LOCK_NB)
-  except BlockingIOError:raise Stop('Another operation is active: '+str(path))
-  try:yield
-  finally:fcntl.flock(f,fcntl.LOCK_UN)
+ with path.open('a+b') as f:
+  if os.name == 'nt':
+   if f.seek(0,2)==0:f.write(b'0');f.flush()
+   f.seek(0)
+   try:msvcrt.locking(f.fileno(),msvcrt.LK_NBLCK,1)
+   except OSError:raise Stop('Another operation is active: '+str(path))
+   try:yield
+   finally:f.seek(0);msvcrt.locking(f.fileno(),msvcrt.LK_UNLCK,1)
+  else:
+   try:fcntl.flock(f,fcntl.LOCK_EX|fcntl.LOCK_NB)
+   except BlockingIOError:raise Stop('Another operation is active: '+str(path))
+   try:yield
+   finally:fcntl.flock(f,fcntl.LOCK_UN)
 def case(path):
  c=Path(path).resolve();d=read(c/'case.json')
  if d['deliverable'] not in cfg()['deliverables']:raise Stop('Unknown deliverable')
@@ -50,7 +62,7 @@ def initialise(deliverable,dest,brief,options=2,destination=None,mode='new'):
  if not brief.is_file():raise Stop('Supply a real local brief file')
  dest.mkdir(parents=True);(dest/'brief').mkdir();shutil.copy2(brief,dest/'brief'/brief.name)
  write(dest/'case.json',{'deliverable':deliverable,'options':options,'mode':mode,'destination':destination,'created':time.time(),'reviews':[]})
- (dest/'case-notes.md').write_text('# Case notes\n\nRecord sources, approved copy, brand assets, specification/date, option-count source, art directions, image plan and unresolved facts.\n')
+ (dest/'case-notes.md').write_text('# Case notes\n\nRecord sources, approved copy, brand assets, specification/date, option-count source, art directions, image plan and unresolved facts.\n', encoding='utf-8')
  rows=[]
  for i in range(1,options+1):
   for sub in ['source','site','assets','images','exports','previews','checks']:(dest/f'option-{i}'/sub).mkdir(parents=True)
@@ -76,7 +88,7 @@ def plan(c,d):
   if not mandatory.issubset(row['required_checks']):raise Stop('Plan omitted mandatory deliverable checks')
  return p
 def rubric(skill):
- lines=[l[2:].strip() for l in (SKILLS/skill/'REVIEW.md').read_text().splitlines() if l.startswith('- ')]
+ lines=[l[2:].strip() for l in (SKILLS/skill/'REVIEW.md').read_text(encoding='utf-8').splitlines() if l.startswith('- ')]
  return {f'R{i:03}':text for i,text in enumerate(lines,1)}
 def launch(role,prompt,work,out,images=()):
  pins();rc=cfg()['roles'][role];out=Path(out);out.parent.mkdir(parents=True,exist_ok=True)
@@ -84,17 +96,17 @@ def launch(role,prompt,work,out,images=()):
  for img in images:argv+=['-i',str(img)]
  argv+=['-']
  events=out.with_suffix('.events.jsonl');err=out.with_suffix('.stderr.txt')
- with events.open('w') as log,err.open('w') as errors:
-  proc=subprocess.run(argv,input=prompt,text=True,stdout=log,stderr=errors,timeout=rc['timeout_minutes']*60)
+ with events.open('w',encoding='utf-8') as log,err.open('w',encoding='utf-8') as errors:
+  proc=subprocess.run(argv,input=prompt,text=True,encoding='utf-8',stdout=log,stderr=errors,timeout=rc['timeout_minutes']*60)
  if proc.returncode:raise Stop(f'{role} failed ({proc.returncode}); see {err}')
  sessions=[]
- for line in events.read_text().splitlines():
+ for line in events.read_text(encoding='utf-8').splitlines():
   try:x=json.loads(line)
   except ValueError:continue
   if x.get('type')=='thread.started':sessions.append(x['thread_id'])
  if len(sessions)!=1:raise Stop('Cannot establish a fresh session identity: '+str(events))
  if not out.is_file():raise Stop('Model produced no final response')
- return sessions[0],out.read_text()
+ return sessions[0],out.read_text(encoding='utf-8')
 def build(c,d,repair=False):
  p=plan(c,d);skill=SKILLS/d['deliverable'];history=read(c/'build-history.json') if (c/'build-history.json').exists() else []
  local_failure=c/'review/local-failures.json'
@@ -276,7 +288,7 @@ def handover(c,record):
  results=record['options']
  hand=['# Local design handover','','Human review: pending. Nothing deployed, uploaded or sent.','']
  for v in results:hand += [f'## Option {v["option"]}: {v["status"]}',v.get('summary','') if isinstance(v.get('summary',''),str) else json.dumps(v['summary'],indent=2),json.dumps(v['defects'],indent=2),'']
- (c/'HANDOVER.md').write_text('\n'.join(hand))
+ (c/'HANDOVER.md').write_text('\n'.join(hand), encoding='utf-8')
 def status():
  pins();problems=[]
  for mod in ['PIL','pypdf','pypdfium2']:

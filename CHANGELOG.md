@@ -1,3 +1,11 @@
+# Native Windows installation
+
+- Use Windows virtualenv executables and standard-library Windows file locks.
+- Install a managed, integrity-checked skill copy without symlink privileges, administrator access or WSL.
+- Keep UTF-8 text handling explicit and preserve Git checkout bytes for source hashes.
+- Resolve npm/Codex command shims and test actual installer, repeat setup, locks, Unicode paths and renderer on native Windows CI.
+- Document Windows setup and updates. Real model/account access remains a separate prerequisite.
+
 # Initial shareable test package
 
 - Bundled AAT Master, seven canonical specialist workflows, review checklists, prototypes, local runner and licensed font assets.

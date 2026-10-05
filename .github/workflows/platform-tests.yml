@@ -1,0 +1,43 @@
+name: Native platform installation
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  install-and-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+        working-directory: AAT Master
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: AAT Master
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install CLI without account credentials
+        run: npm install --global @openai/codex@0.160.0
+      - name: Install package and browser
+        run: python install.py --codex-home "${{ runner.temp }}/aat-codex" --config-home "${{ runner.temp }}/aat-config"
+      - name: Repeat installation safely
+        run: python install.py --codex-home "${{ runner.temp }}/aat-codex" --config-home "${{ runner.temp }}/aat-config" --skip-browser-download
+      - name: Protocol and native platform tests
+        run: |
+          python - <<'PY'
+          import os, subprocess
+          from pathlib import Path
+          python = Path('runtime/.venv') / ('Scripts/python.exe' if os.name == 'nt' else 'bin/python')
+          subprocess.run([str(python.resolve()), '-m', 'unittest', 'test_runtime', '-v'], cwd='runtime', check=True)
+          subprocess.run([str(python.resolve()), '-m', 'unittest', 'discover', '-s', 'tests', '-v'], check=True)
+          PY

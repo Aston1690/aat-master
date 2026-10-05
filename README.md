@@ -20,7 +20,19 @@ The master detects scope from the brief, asks about ambiguous inputs, reads the 
 
 ## Install once
 
-Requirements: macOS (tested) or Linux (not yet validated), Python 3.11+, Node.js/npm, and an authenticated Codex CLI with access to `gpt-6-astra` and `gpt-6-sol`. The main T3/Codex session needs built-in image generation and browser access for stages that require them. Claude is not required. This is not a Windows-native installer or a guarantee of compatibility with every IDE.
+Requirements: Windows or macOS, Python 3.11+, Node.js/npm, and an authenticated Codex CLI with access to `gpt-6-astra` and `gpt-6-sol`. The main T3/Codex session needs built-in image generation and browser access for stages that require them. Claude is not required. WSL and administrator access are not required by this installer. Linux is not yet validated; compatibility with every IDE is not guaranteed.
+
+Windows PowerShell (after installing Python 3.11+, Node.js and Codex):
+
+```powershell
+git clone https://github.com/Aston1690/aat-master.git
+cd aat-master
+py -3 install.py
+```
+
+If already cloned, run `git pull --ff-only` in that folder, then `py -3 install.py`. A previous attempt that stopped with the Windows restriction did not install the skill; no WSL setup is needed.
+
+macOS:
 
 ```sh
 git clone https://github.com/Aston1690/aat-master.git
@@ -28,9 +40,9 @@ cd aat-master
 python3.11 install.py
 ```
 
-The installer creates a local Python environment, installs pinned Python/Node dependencies and Chromium, installs three named `aat-master-*` Codex profiles, links the master skill into the selected Codex home, and creates a local connection registry. It does not change the global default model, authenticate services, start a client job or run paid model probes. Existing conflicting installations are refused. `--skip-browser-download` is available if a compatible browser is already configured.
+The installer creates a local Python environment, installs pinned Python/Node dependencies and Chromium, installs three named `aat-master-*` Codex profiles, installs the master skill into the selected Codex home (a managed copy on Windows; a symlink on macOS), and creates a local connection registry. It does not change the global default model, authenticate services, start a client job or run paid model probes. Existing conflicting installations are refused. `--skip-browser-download` is available if a compatible browser is already configured.
 
-Keep this checkout in place: the installed skill links to it. Do not copy just SKILL.md or install this repository with a skill-only installer; that leaves out the runtime setup. Use `--codex-home` for a custom Codex home. The `--config-home` option changes the connection-registry location.
+Keep this checkout in place: the installed skill resolves this runtime. After pulling reviewed updates, rerun the installer to refresh the Windows skill copy and profiles. Unmodified files from this same installation can be updated; manually changed or unrelated installations are refused. Do not copy just SKILL.md or install this repository with a skill-only installer; that leaves out the runtime setup. Use `--codex-home` for a custom Codex home. The `--config-home` option changes the connection-registry location.
 
 ## Use in T3
 
@@ -43,6 +55,16 @@ If the T3 picker misses a newly installed skill, fully quit and reopen T3. Provi
 Invoking a skill cannot change the main chat's model. Once Astra is selected, the runner explicitly starts Sol builders and fresh Astra review sessions. Missing model/tool access is a reported blocker, not permission to silently substitute another workflow.
 
 ## Check the installation
+
+Windows PowerShell:
+
+```powershell
+.\runtime\.venv\Scripts\python.exe runtime/team.py status
+.\runtime\.venv\Scripts\python.exe -m unittest discover -s runtime -p test_runtime.py -v
+.\runtime\.venv\Scripts\python.exe -m unittest discover -s tests -v
+```
+
+macOS:
 
 ```sh
 runtime/.venv/bin/python runtime/team.py status

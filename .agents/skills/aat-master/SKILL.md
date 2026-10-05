@@ -14,7 +14,7 @@ Read [REVIEW.md](REVIEW.md) before execution and handover. The user supplies a b
 
 ## Connect before production
 
-Run `python3 scripts/runtime.py locate` and `python3 scripts/runtime.py status`, resolving the script relative to this SKILL.md, not the current project directory. `locate` returns the runtime root and canonical instruction paths. `status` checks pinned files, dependencies and model-role configuration. A passing status does not prove image generation, browser access, current account/model access or design quality.
+On Windows, use `py -3` instead of `python3` in the commands below; the wrapper selects the correct runtime interpreter. Run `python3 scripts/runtime.py locate` and `python3 scripts/runtime.py status`, resolving the script relative to this SKILL.md, not the current project directory. `locate` returns the runtime root and canonical instruction paths. `status` checks pinned files, dependencies and model-role configuration. A passing status does not prove image generation, browser access, current account/model access or design quality.
 
 Read the resolved runtime `AGENTS.md` and `RUN-A-JOB.md`. The wrapper resolves the bundled runtime first; a machine-local registry is the fallback. Machine-specific configuration stays outside shared instructions. If it is absent or invalid, report the concrete setup gap. Never silently construct a replacement runner, use a Claude adapter, edit pins or weaken checks.
 
