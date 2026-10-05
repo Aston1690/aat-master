@@ -4,7 +4,7 @@
   ".agents/skills/aat-master/agents/openai.yaml": "f5d441ce474428062d800c3ea571ee9960763d33743018962722bbbee6488462",
   ".agents/skills/aat-master/scripts/runtime.py": "30961080adf4ec77d02b5aa387696e86b60361b91c4db05168b56d997c6dc62d",
   ".gitattributes": "3aae6126c31ee2f7eef3bf8be132e0ae6b4f0071380281830c05f35e989c0975",
-  ".github/workflows/platform-tests.yml": "7f079e9c9584614e6053d58bc9d0b3510a6e3c6771b05486f701af5676a7a624",
+  ".github/workflows/platform-tests.yml": "212358a3156714b7b17d4e63c57ffe629b1d534801c9dc279a11a1534c6fd7b0",
   ".gitignore": "c0c4e9671923a75683d0a11e83f3b01f386eb9110d4a3fa1ae53dc2063a6cc6c",
   "CHANGELOG.md": "74c4c7c10456a6b3de71cff73e722dd6a919edd68754c30db1b924dbb7e7b305",
   "NOTICE.md": "8217b6c35f656d087b14716c612f12d03f2ee8f7993b79929b012a6c74c415e2",

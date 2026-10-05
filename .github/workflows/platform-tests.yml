@@ -38,6 +38,6 @@ jobs:
           import os, subprocess
           from pathlib import Path
           python = Path('runtime/.venv') / ('Scripts/python.exe' if os.name == 'nt' else 'bin/python')
-          subprocess.run([str(python.resolve()), '-m', 'unittest', 'test_runtime', '-v'], cwd='runtime', check=True)
-          subprocess.run([str(python.resolve()), '-m', 'unittest', 'discover', '-s', 'tests', '-v'], check=True)
+          subprocess.run([str(python.absolute()), '-m', 'unittest', 'test_runtime', '-v'], cwd='runtime', check=True)
+          subprocess.run([str(python.absolute()), '-m', 'unittest', 'discover', '-s', 'tests', '-v'], check=True)
           PY
